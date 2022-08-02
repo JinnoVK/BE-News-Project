@@ -133,3 +133,96 @@ describe(`/api/articles/:article_id`, () => {
     });
   });
 });
+
+describe(`/api/articles/:article_id`, () => {
+  describe("PATCH", () => {
+    test("should return status code 200", () => {
+      const values = { inc_votes: 1 };
+      return request(app).patch("/api/articles/1").send(values).expect(200);
+    });
+
+    test("should update the votes by the provided amount", () => {
+      const values = { inc_votes: 1 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(values)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.votes).toBe(101);
+        });
+    });
+
+    test("response should be an object", () => {
+      const values = { inc_votes: 1 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(values)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toBeInstanceOf(Object);
+          expect(Array.isArray(body)).toBe(false);
+        });
+    });
+
+    test("should contain all the correct properties after being updated", () => {
+      const values = { inc_votes: 1 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(values)
+        .expect(200)
+        .then(({ body: { article } }) => {
+          expect(article.article_id).toBe(1);
+          expect(article.title).toEqual(expect.any(String));
+          expect(article.author).toEqual(expect.any(String));
+          expect(article.body).toEqual(expect.any(String));
+          expect(article.topic).toEqual(expect.any(String));
+          expect(article.created_at).toEqual(expect.any(String));
+          expect(article.votes).toEqual(expect.any(Number));
+        });
+    });
+
+    test("should return a 400 error if requested endpoint is an invalid type", () => {
+      const values = { inc_votes: 1 };
+      return request(app)
+        .patch("/api/articles/invalidpath")
+        .send(values)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+
+    test("should return a 404 error if requested id is not found", () => {
+      const values = { inc_votes: 1 };
+      return request(app)
+        .patch("/api/articles/99999999")
+        .send(values)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article not found");
+        });
+    });
+
+    test("should return a 400 error if provided value is an invalid type", () => {
+      const values = { inc_votes: "Northcoders" };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(values)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+
+    test("should return a 404 error if provided key is not votes", () => {
+      const values = { northcoders: 1 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(values)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Votes not found");
+        });
+    });
+  });
+});
