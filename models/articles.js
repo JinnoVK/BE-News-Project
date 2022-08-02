@@ -8,8 +8,8 @@ exports.selectArticleById = (id) => {
 
       if (article.length === 0) {
         return Promise.reject({
-          status: 400,
-          msg: "Bad request, invalid ID",
+          status: 404,
+          msg: "Article not found",
         });
       }
 

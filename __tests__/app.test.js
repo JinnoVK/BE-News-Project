@@ -114,21 +114,21 @@ describe(`/api/articles/:article_id`, () => {
         });
     });
 
-    test("should return a 404 error if path does not exist", () => {
+    test("should return a 400 error if requested endpoint is an invalid type", () => {
       return request(app)
         .get("/api/articles/invalidpath")
-        .expect(404)
+        .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe("Path not found!");
+          expect(body.msg).toBe("Bad request");
         });
     });
 
-    test("should return a 400 error if id is out of range or otherwise invalid", () => {
+    test("should return a 404 error if requested id is not found", () => {
       return request(app)
         .get("/api/articles/99999999")
-        .expect(400)
+        .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Bad request, invalid ID");
+          expect(body.msg).toBe("Article not found");
         });
     });
   });
