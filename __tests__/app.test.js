@@ -115,6 +115,14 @@ describe(`/api/articles/:article_id`, () => {
         });
     });
 
+    test("should correctly count the amount of comments associated with ID", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .then(({ body: { article } }) => {
+          expect(article[0].comment_count).toBe(11);
+        });
+    });
+
     test("should return a 400 error if requested endpoint is an invalid type", () => {
       return request(app)
         .get("/api/articles/invalidpath")
