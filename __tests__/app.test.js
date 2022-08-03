@@ -254,6 +254,7 @@ describe(`/api/users`, () => {
       return request(app)
         .get("/api/users")
         .then(({ body: { users } }) => {
+          expect(users).toHaveLength(4);
           users.forEach((user) => {
             expect(user.username).toEqual(expect.any(String));
             expect(user.name).toEqual(expect.any(String));
