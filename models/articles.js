@@ -3,7 +3,10 @@ const { articleError, votesError } = require("./customerrors");
 
 exports.selectArticleById = (id) => {
   return db
-    .query("SELECT * FROM articles WHERE article_id = $1", [id])
+    .query(
+      "SELECT articles.*, CAST((SELECT COUNT(*) AS comment_count FROM comments WHERE comments.article_id = articles.article_id) AS INT) FROM articles WHERE article_id = $1 ",
+      [id]
+    )
     .then((articles) => {
       const article = articles.rows;
 
