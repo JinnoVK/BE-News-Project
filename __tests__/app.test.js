@@ -226,3 +226,50 @@ describe(`/api/articles/:article_id`, () => {
     });
   });
 });
+
+describe(`/api/users`, () => {
+  describe("GET", () => {
+    test("should return status code 200", () => {
+      return request(app).get("/api/users").expect(200);
+    });
+
+    test("should respond with an array of users", () => {
+      return request(app)
+        .get("/api/users")
+        .then(({ body: { users } }) => {
+          expect(Array.isArray(users)).toBe(true);
+        });
+    });
+
+    test("response should be an object with the value of all users", () => {
+      return request(app)
+        .get("/api/users")
+        .then(({ body }) => {
+          expect(body).toBeInstanceOf(Object);
+          expect(!Array.isArray(body)).toBe(true);
+        });
+    });
+
+    test("returned user objects should have correct properties", () => {
+      return request(app)
+        .get("/api/users")
+        .then(({ body: { users } }) => {
+          expect(users).toHaveLength(4);
+          users.forEach((user) => {
+            expect(user.username).toEqual(expect.any(String));
+            expect(user.name).toEqual(expect.any(String));
+            expect(user.avatar_url).toEqual(expect.any(String));
+          });
+        });
+    });
+
+    test("should return a 404 error if path does not exist", () => {
+      return request(app)
+        .get("/api/invalidpath")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Path not found!");
+        });
+    });
+  });
+});
