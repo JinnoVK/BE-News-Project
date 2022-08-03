@@ -111,6 +111,7 @@ describe(`/api/articles/:article_id`, () => {
           expect(article[0].topic).toEqual(expect.any(String));
           expect(article[0].created_at).toEqual(expect.any(String));
           expect(article[0].votes).toEqual(expect.any(Number));
+          expect(article[0].comment_count).toEqual(expect.any(Number));
         });
     });
 
