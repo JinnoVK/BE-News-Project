@@ -341,3 +341,69 @@ describe(`/api/articles`, () => {
     });
   });
 });
+
+describe("/api/articles/:article_id/comments", () => {
+  describe("GET", () => {
+    test("should return status code 200", () => {
+      return request(app).get("/api/articles/1/comments").expect(200);
+    });
+
+    test("should respond with an array of comments", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .then(({ body: { comments } }) => {
+          expect(Array.isArray(comments)).toBe(true);
+        });
+    });
+
+    test("response should be an object with the value of all comments", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .then(({ body }) => {
+          expect(body).toBeInstanceOf(Object);
+          expect(!Array.isArray(body)).toBe(true);
+        });
+    });
+
+    test("should respond with the correct amount of comments associated with article_id", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .then(({ body: { comments } }) => {
+          expect(comments).toHaveLength(11);
+        });
+    });
+
+    test("returned comments should have correct properties", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .then(({ body: { comments } }) => {
+          comments.forEach((comment) => {
+            expect(comment.article_id).toBe(1);
+            expect(comment.comment_id).toEqual(expect.any(Number));
+            expect(comment.body).toEqual(expect.any(String));
+            expect(comment.author).toEqual(expect.any(String));
+            expect(comment.votes).toEqual(expect.any(Number));
+            expect(comment.created_at).toEqual(expect.any(String));
+          });
+        });
+    });
+
+    test("should return a 400 error if requested endpoint is an invalid type or syntax is malformed", () => {
+      return request(app)
+        .get("/api/articles/invalidpath/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+
+    test("should return a 404 error if request is valid but id is not found", () => {
+      return request(app)
+        .get("/api/articles/99999999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article not found");
+        });
+    });
+  });
+});
