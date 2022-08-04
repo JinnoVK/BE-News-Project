@@ -419,4 +419,136 @@ describe("/api/articles/:article_id/comments", () => {
         });
     });
   });
+
+  describe("POST", () => {
+    test("should return status code 201", () => {
+      const comments = {
+        username: "icellusedkars",
+        body: "Bring back liamsCounter",
+      };
+      return request(app)
+        .post("/api/articles/9/comments")
+        .send(comments)
+        .expect(201);
+    });
+
+    test("response should be an object", () => {
+      const comments = {
+        username: "icellusedkars",
+        body: "Bring back liamsCounter",
+      };
+      return request(app)
+        .post("/api/articles/9/comments")
+        .send(comments)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body).toBeInstanceOf(Object);
+          expect(Array.isArray(body)).toBe(false);
+        });
+    });
+
+    test("response should have the correct comment properties", () => {
+      const comments = {
+        username: "icellusedkars",
+        body: "Bring back liamsCounter",
+      };
+      return request(app)
+        .post("/api/articles/9/comments")
+        .send(comments)
+        .expect(201)
+        .then(({ body: { comment } }) => {
+          expect(comment[0].article_id).toBe(9);
+          expect(comment[0].comment_id).toEqual(expect.any(Number));
+          expect(comment[0].body).toEqual(expect.any(String));
+          expect(comment[0].author).toEqual(expect.any(String));
+          expect(comment[0].votes).toEqual(expect.any(Number));
+          expect(comment[0].created_at).toEqual(expect.any(String));
+        });
+    });
+
+    test("response should be the provided comment", () => {
+      const comments = {
+        username: "icellusedkars",
+        body: "Bring back liamsCounter",
+      };
+      return request(app)
+        .post("/api/articles/9/comments")
+        .send(comments)
+        .expect(201)
+        .then(({ body: { comment } }) => {
+          expect(comment[0].body).toBe(comments.body);
+          expect(comment[0].author).toBe(comments.username);
+        });
+    });
+
+    test("should return a 400 error if requested endpoint is an invalid type", () => {
+      const comments = {
+        username: "icellusedkars",
+        body: "Bring back liamsCounter",
+      };
+      return request(app)
+        .post("/api/articles/invalidpath/comments")
+        .send(comments)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+
+    test("should return a 404 error if article id is not found", () => {
+      const comments = {
+        username: "icellusedkars",
+        body: "Bring back liamsCounter",
+      };
+      return request(app)
+        .post("/api/articles/99999999/comments")
+        .send(comments)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article not found");
+        });
+    });
+
+    test("should return a 400 error if provided value is an invalid type", () => {
+      const comments = {
+        username: "icellusedkars",
+        body: null,
+      };
+      return request(app)
+        .post("/api/articles/9/comments")
+        .send(comments)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+
+    test("should return a 404 error if provided key is not username", () => {
+      const comments = {
+        northcoder: "northcoders",
+        body: "Bring back liamsCounter",
+      };
+      return request(app)
+        .post("/api/articles/9/comments")
+        .send(comments)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("User not found");
+        });
+    });
+
+    test("should return a 404 error if provided key is not body", () => {
+      const comments = {
+        username: "icellusedkars",
+        notbody: "Bring back liamsCounter",
+      };
+      return request(app)
+        .post("/api/articles/9/comments")
+        .send(comments)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("User not found");
+        });
+    });
+  });
 });

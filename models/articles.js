@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-const { articleError, votesError } = require("./customerrors");
+const { articleError, votesError, userError } = require("./customerrors");
 const articles = require("../db/data/test-data/articles");
 
 exports.selectAllArticles = () => {
@@ -55,6 +55,32 @@ exports.selectCommentsById = (id) => {
         .query("SELECT * FROM comments WHERE article_id = $1", [id])
         .then((comments) => {
           return comments.rows;
+        });
+    });
+};
+
+exports.addCommentsById = (id, newComment) => {
+  if (
+    !newComment.hasOwnProperty("username") ||
+    !newComment.hasOwnProperty("body")
+  )
+    return userError();
+
+  const { username, body } = newComment;
+  return db
+    .query("SELECT EXISTS (SELECT * FROM articles WHERE article_id = $1)", [id])
+    .then((res) => {
+      if (res.rows[0].exists === false) {
+        return articleError();
+      }
+
+      return db
+        .query(
+          "INSERT INTO comments (author, body, article_id) VALUES ((SELECT username FROM users WHERE username = $1), $2, (SELECT article_id FROM articles WHERE article_id = $3)) RETURNING *;",
+          [username, body, id]
+        )
+        .then((comment) => {
+          return comment.rows;
         });
     });
 };
