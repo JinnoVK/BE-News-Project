@@ -1,5 +1,6 @@
 const db = require("../db/connection");
 const { articleError, votesError } = require("./customerrors");
+const articles = require("../db/data/test-data/articles");
 
 exports.selectAllArticles = () => {
   return db
@@ -44,10 +45,16 @@ exports.updateArticleById = (id, newValues) => {
 
 exports.selectCommentsById = (id) => {
   return db
-    .query("SELECT * FROM comments WHERE article_id = $1", [id])
-    .then((comments) => {
-      if (comments.rows.length === 0) return articleError();
+    .query("SELECT EXISTS (SELECT * FROM articles WHERE article_id = $1)", [id])
+    .then((res) => {
+      if (res.rows[0].exists === false) {
+        return articleError();
+      }
 
-      return comments.rows;
+      return db
+        .query("SELECT * FROM comments WHERE article_id = $1", [id])
+        .then((comments) => {
+          return comments.rows;
+        });
     });
 };

@@ -348,11 +348,24 @@ describe("/api/articles/:article_id/comments", () => {
       return request(app).get("/api/articles/1/comments").expect(200);
     });
 
+    test("should return status code 200 if article exists but with no comments", () => {
+      return request(app).get("/api/articles/12/comments").expect(200);
+    });
+
     test("should respond with an array of comments", () => {
       return request(app)
         .get("/api/articles/1/comments")
         .then(({ body: { comments } }) => {
           expect(Array.isArray(comments)).toBe(true);
+        });
+    });
+
+    test("should respond with an empty array if article exists but with no comments", () => {
+      return request(app)
+        .get("/api/articles/12/comments")
+        .then(({ body: { comments } }) => {
+          expect(Array.isArray(comments)).toBe(true);
+          expect(comments).toHaveLength(0);
         });
     });
 
