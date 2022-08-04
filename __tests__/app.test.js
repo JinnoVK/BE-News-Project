@@ -536,5 +536,19 @@ describe("/api/articles/:article_id/comments", () => {
           expect(body.msg).toBe("User not found");
         });
     });
+
+    test("should return a 404 error if provided key is not body", () => {
+      const comments = {
+        username: "icellusedkars",
+        notbody: "Bring back liamsCounter",
+      };
+      return request(app)
+        .post("/api/articles/9/comments")
+        .send(comments)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("User not found");
+        });
+    });
   });
 });

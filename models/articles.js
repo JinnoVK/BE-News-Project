@@ -60,7 +60,11 @@ exports.selectCommentsById = (id) => {
 };
 
 exports.addCommentsById = (id, newComment) => {
-  if (!newComment.hasOwnProperty("username")) return userError();
+  if (
+    !newComment.hasOwnProperty("username") ||
+    !newComment.hasOwnProperty("body")
+  )
+    return userError();
 
   const { username, body } = newComment;
   return db
