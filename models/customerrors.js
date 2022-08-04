@@ -11,3 +11,10 @@ exports.votesError = () => {
     msg: "Votes not found",
   });
 };
+
+exports.userError = () => {
+  return Promise.reject({
+    status: 404,
+    msg: "User not found",
+  });
+};
