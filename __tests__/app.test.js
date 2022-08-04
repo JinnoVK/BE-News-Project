@@ -306,11 +306,20 @@ describe(`/api/articles`, () => {
         });
     });
 
-    test("should respond with the correct amount of users", () => {
+    test("should respond with the correct amount of articles", () => {
       return request(app)
         .get("/api/articles")
         .then(({ body: { articles } }) => {
           expect(articles).toHaveLength(12);
+        });
+    });
+
+    test("articles should have a new property of comment_count which correctly counts all comments made associated with the article_id", () => {
+      return request(app)
+        .get("/api/articles")
+        .then(({ body: { articles } }) => {
+          expect(articles[0].hasOwnProperty("comment_count")).toBe(true);
+          expect(articles[0].comment_count).toBe(2);
         });
     });
 
