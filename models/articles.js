@@ -1,6 +1,16 @@
 const db = require("../db/connection");
 const { articleError, votesError } = require("./customerrors");
 
+exports.selectAllArticles = () => {
+  return db
+    .query(
+      "SELECT articles.*, CAST((SELECT COUNT(*) AS comment_count FROM comments WHERE comments.article_id = articles.article_id) AS INT) FROM articles ORDER BY created_at DESC"
+    )
+    .then((articles) => {
+      return articles.rows;
+    });
+};
+
 exports.selectArticleById = (id) => {
   return db
     .query(

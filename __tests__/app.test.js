@@ -3,6 +3,7 @@ const request = require("supertest");
 const seed = require("../db/seeds/seed");
 const db = require("../db/connection");
 const data = require("../db/data/test-data");
+const toBeSortedBy = require("jest-sorted");
 
 beforeEach(() => {
   return seed(data);
@@ -268,6 +269,65 @@ describe(`/api/users`, () => {
             expect(user.name).toEqual(expect.any(String));
             expect(user.avatar_url).toEqual(expect.any(String));
           });
+        });
+    });
+
+    test("should return a 404 error if path does not exist", () => {
+      return request(app)
+        .get("/api/invalidpath")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Path not found!");
+        });
+    });
+  });
+});
+
+describe(`/api/articles`, () => {
+  describe("GET", () => {
+    test("should return status code 200", () => {
+      return request(app).get("/api/articles").expect(200);
+    });
+
+    test("should respond with an array of articles", () => {
+      return request(app)
+        .get("/api/articles")
+        .then(({ body: { articles } }) => {
+          expect(Array.isArray(articles)).toBe(true);
+        });
+    });
+
+    test("response should be an object with the value of all articles", () => {
+      return request(app)
+        .get("/api/articles")
+        .then(({ body }) => {
+          expect(body).toBeInstanceOf(Object);
+          expect(!Array.isArray(body)).toBe(true);
+        });
+    });
+
+    test("should respond with the correct amount of articles", () => {
+      return request(app)
+        .get("/api/articles")
+        .then(({ body: { articles } }) => {
+          expect(articles).toHaveLength(12);
+        });
+    });
+
+    test("articles should have a new property of comment_count which correctly counts all comments made associated with the article_id", () => {
+      return request(app)
+        .get("/api/articles")
+        .then(({ body: { articles } }) => {
+          expect(articles[0].hasOwnProperty("comment_count")).toBe(true);
+          expect(articles[0].comment_count).toBe(2);
+        });
+    });
+
+    test("response should be sorted by date in descending order", () => {
+      return request(app)
+        .get("/api/articles")
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("created_at", { descending: true });
         });
     });
 
