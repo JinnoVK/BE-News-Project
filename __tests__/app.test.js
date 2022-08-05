@@ -637,3 +637,38 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 });
+
+describe("/api/comments/:comment_id", () => {
+  describe("DELETE", () => {
+    test("should respond wih status code 204", () => {
+      return request(app).delete("/api/comments/1").expect(204);
+    });
+
+    test("should send back no content", () => {
+      return request(app)
+        .delete("/api/comments/1")
+        .expect(204)
+        .then(({ body }) => {
+          expect(body).toEqual({});
+        });
+    });
+
+    test("should return a 400 error if requested endpoint is an invalid type", () => {
+      return request(app)
+        .delete("/api/comments/invalidpath")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+
+    test("should return a 404 error if requested id is not found", () => {
+      return request(app)
+        .delete("/api/comments/99999999")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Comment not found");
+        });
+    });
+  });
+});
