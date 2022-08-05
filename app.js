@@ -26,6 +26,8 @@ app.patch("/api/articles/:article_id", patchArticleById);
 
 app.get("/api/users", getUsers);
 
+//app.delete("/api/comments/:comment_id", delCommentsById);
+
 app.all("*", (req, res, next) => {
   res.status(404).send({ msg: "Path not found!" });
   next();

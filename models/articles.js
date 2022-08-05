@@ -6,6 +6,7 @@ const {
   articleColumns,
   articleSortError,
   articleOrderError,
+  topicError,
 } = require("./customerrors");
 
 exports.selectAllArticles = (
@@ -28,9 +29,16 @@ exports.selectAllArticles = (
 
   queryStr += `ORDER BY ${colName} ${orderType.toUpperCase()}`;
 
-  return db.query(queryStr, injectArr).then((articles) => {
-    return articles.rows;
-  });
+  return db
+    .query("SELECT EXISTS (SELECT * FROM topics WHERE slug = $1)", [topic])
+    .then((res) => {
+      if (res.rows[0].exists === false && topic) {
+        return topicError();
+      }
+      return db.query(queryStr, injectArr).then((articles) => {
+        return articles.rows;
+      });
+    });
 };
 
 exports.selectArticleById = (id) => {

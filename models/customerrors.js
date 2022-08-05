@@ -15,6 +15,13 @@ exports.articleError = () => {
   });
 };
 
+exports.topicError = () => {
+  return Promise.reject({
+    status: 404,
+    msg: "Topic not found",
+  });
+};
+
 exports.articleSortError = () => {
   return Promise.reject({ status: 400, msg: "Invalid sort query" });
 };

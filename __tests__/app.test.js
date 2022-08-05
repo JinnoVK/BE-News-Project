@@ -353,9 +353,9 @@ describe(`/api/articles`, () => {
         .get(`/api/articles?topic=${query}`)
         .then(({ body: { articles } }) => {
           expect(articles).toBeSortedBy("created_at", { descending: true });
-          expect(articles).toEqual(
-            expect.arrayContaining([expect.objectContaining({ topic: query })])
-          );
+          articles.forEach((article) => {
+            expect(article.topic).toBe("mitch");
+          });
         });
     });
 
@@ -373,14 +373,14 @@ describe(`/api/articles`, () => {
         .get(`/api/articles?sort=votes&topic=${query}&order=asc`)
         .then(({ body: { articles } }) => {
           expect(articles).toBeSortedBy("votes", { ascending: true });
-          expect(articles).toEqual(
-            expect.arrayContaining([expect.objectContaining({ topic: query })])
-          );
+          articles.forEach((article) => {
+            expect(article.topic).toBe("mitch");
+          });
         });
     });
 
-    test("should return an empty response if there are no topics of queried type", () => {
-      const query = "liamsCounter";
+    test("should return an empty response if topic exists but there are no articles associated with it", () => {
+      const query = "paper";
       return request(app)
         .get(`/api/articles?topic=${query}`)
         .then(({ body: { articles } }) => {
@@ -412,6 +412,16 @@ describe(`/api/articles`, () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Invalid order query");
+        });
+    });
+
+    test("should return a 404 error if topic does not exist", () => {
+      const query = "liamsCounter";
+      return request(app)
+        .get(`/api/articles?topic=${query}`)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Topic not found");
         });
     });
   });
