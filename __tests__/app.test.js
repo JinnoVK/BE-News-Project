@@ -323,11 +323,68 @@ describe(`/api/articles`, () => {
         });
     });
 
-    test("response should be sorted by date in descending order", () => {
+    test("response should have default ordering by date and default sorting of descending", () => {
       return request(app)
         .get("/api/articles")
         .then(({ body: { articles } }) => {
           expect(articles).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+
+    test("should accept query to sort by specific column", () => {
+      return request(app)
+        .get("/api/articles?sort=votes")
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("votes", { descending: true });
+        });
+    });
+
+    test("should accept query to specify ordering type", () => {
+      return request(app)
+        .get("/api/articles?order=asc")
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("created_at", { ascending: true });
+        });
+    });
+
+    test("should accept query to filter response by article topic", () => {
+      const query = "mitch";
+      return request(app)
+        .get(`/api/articles?topic=${query}`)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("created_at", { descending: true });
+          expect(articles).toEqual(
+            expect.arrayContaining([expect.objectContaining({ topic: query })])
+          );
+        });
+    });
+
+    test("should accept more than one query at a time", () => {
+      return request(app)
+        .get("/api/articles?sort=votes&order=asc")
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("votes", { ascending: true });
+        });
+    });
+
+    test("should accept all three queries at the same time", () => {
+      const query = "mitch";
+      return request(app)
+        .get(`/api/articles?sort=votes&topic=${query}&order=asc`)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("votes", { ascending: true });
+          expect(articles).toEqual(
+            expect.arrayContaining([expect.objectContaining({ topic: query })])
+          );
+        });
+    });
+
+    test("should return an empty response if there are no topics of queried type", () => {
+      const query = "liamsCounter";
+      return request(app)
+        .get(`/api/articles?topic=${query}`)
+        .then(({ body: { articles } }) => {
+          expect(articles).toHaveLength(0);
         });
     });
 
@@ -337,6 +394,24 @@ describe(`/api/articles`, () => {
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("Path not found!");
+        });
+    });
+
+    test("should return a 400 error if sort query is invalid", () => {
+      return request(app)
+        .get("/api/articles?sort=SQLInjection")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid sort query");
+        });
+    });
+
+    test("should return a 400 error if order query is invalid", () => {
+      return request(app)
+        .get("/api/articles?order=SQLInjection")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid order query");
         });
     });
   });
