@@ -672,3 +672,29 @@ describe("/api/comments/:comment_id", () => {
     });
   });
 });
+
+describe("/api", () => {
+  test("should respond with status code 200", () => {
+    return request(app).get("/api").expect(200);
+  });
+
+  test("should respond with an object", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeInstanceOf(Object);
+        expect(Array.isArray(body)).toBe(false);
+      });
+  });
+
+  test("should have the correct amount of endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body: { endpoints } }) => {
+        const keys = Object.keys(endpoints);
+        expect(keys).toHaveLength(9);
+      });
+  });
+});
