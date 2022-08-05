@@ -7,7 +7,12 @@ exports.articleColumns = [
   "votes",
   "article_id",
 ];
-
+exports.commentError = () => {
+  return Promise.reject({
+    status: 404,
+    msg: "Comment not found",
+  });
+};
 exports.articleError = () => {
   return Promise.reject({
     status: 404,
