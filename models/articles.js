@@ -1,14 +1,43 @@
 const db = require("../db/connection");
-const { articleError, votesError, userError } = require("./customerrors");
-const articles = require("../db/data/test-data/articles");
+const {
+  articleError,
+  votesError,
+  userError,
+  articleColumns,
+  articleSortError,
+  articleOrderError,
+  topicError,
+} = require("./customerrors");
 
-exports.selectAllArticles = () => {
+exports.selectAllArticles = (
+  colName = "created_at",
+  orderType = "DESC",
+  topic
+) => {
+  if (!articleColumns.includes(colName)) return articleSortError();
+  if (!["asc", "desc"].includes(orderType.toLowerCase()))
+    return articleOrderError();
+
+  let queryStr =
+    "SELECT articles.*, CAST((SELECT COUNT(*) AS comment_count FROM comments WHERE comments.article_id = articles.article_id) AS INT) FROM articles ";
+  let injectArr = [];
+
+  if (topic) {
+    queryStr += `WHERE topic = $1 `;
+    injectArr.push(topic);
+  }
+
+  queryStr += `ORDER BY ${colName} ${orderType.toUpperCase()}`;
+
   return db
-    .query(
-      "SELECT articles.*, CAST((SELECT COUNT(*) AS comment_count FROM comments WHERE comments.article_id = articles.article_id) AS INT) FROM articles ORDER BY created_at DESC"
-    )
-    .then((articles) => {
-      return articles.rows;
+    .query("SELECT EXISTS (SELECT * FROM topics WHERE slug = $1)", [topic])
+    .then((res) => {
+      if (res.rows[0].exists === false && topic) {
+        return topicError();
+      }
+      return db.query(queryStr, injectArr).then((articles) => {
+        return articles.rows;
+      });
     });
 };
 
