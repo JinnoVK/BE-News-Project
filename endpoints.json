@@ -10,8 +10,8 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "description": "serves an array of all articles",
+    "queries": ["topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
@@ -23,5 +23,112 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves an array of articles matching provided article id",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "article_id": 1,
+          "title": "Living in the shadow of a great man",
+          "topic": "mitch",
+          "author": "butter_bridge",
+          "body": "I find this existence challenging",
+          "created_at": 1594329060000,
+          "votes": 100
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves up an array of all the comments on an article matching the provided article id",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 1,
+          "body": "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+          "votes": 14,
+          "author": "butter_bridge",
+          "article_id": 1,
+          "created_at": 1604113380000
+        },
+        {
+          "comment_id": 2,
+          "body": "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
+          "votes": 100,
+          "author": "icellusedkars",
+          "article_id": 1,
+          "created_at": 1583025180000
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "serves up an array containing the comment that was posted to the database",
+    "queries": [],
+    "exampleResponse": {
+      "comment": [
+        {
+          "comment_id": 19,
+          "body": "Bring back liamsCounter",
+          "article_id": 9,
+          "author": "icellusedkars",
+          "votes": 0,
+          "created_at": "2022-08-05T12:59:43.585Z"
+        }
+      ]
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "accepts a request of votes and serves an array containing the updated article with patched votes property",
+    "queries": [],
+    "exampleResponse": {
+      "article": [
+        {
+          "article_id": 1,
+          "title": "Living in the shadow of a great man",
+          "topic": "mitch",
+          "author": "butter_bridge",
+          "body": "I find this existence challenging",
+          "created_at": 1594329060000,
+          "votes": 1
+        }
+      ]
+    }
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'"
+        },
+        {
+          "username": "'icellusedkars'",
+          "name": "'sam'",
+          "avatar_url": "'https://avatars2.githubusercontent.com/u/24604688?s=460&v=4'"
+        },
+        {
+          "username": "'rogersop'",
+          "name": "'paul'",
+          "avatar_url": "'https://avatars2.githubusercontent.com/u/24394918?s=400&v=4'"
+        },
+        {
+          "username": "'lurker'",
+          "name": "'do_nothing'",
+          "avatar_url": "'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png'"
+        }
+      ]
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes comments from the database matching the provided id",
+    "queries": [],
+    "exampleResponse": {}
   }
 }
